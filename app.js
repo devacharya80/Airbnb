@@ -2,32 +2,16 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const Listing = require("./models/listing");
+const path = require("path");
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
 const main = async () => {
   await mongoose.connect(MONGO_URL);
 };
-
-app.get("/", (req, res) => {
-  res.send("i am root");
-});
-
-app.get("/testListing", async (req, res) => {
-  try {
-    await Listing.create({
-      title: "My New Villa",
-      description: "New the Beach",
-      price: 1200,
-      location: "Magadi, Banglore",
-      country: "India",
-    });
-    console.log("saved to db");
-    res.send("saved to db");
-  } catch (err) {
-    console.log(err);
-  }
-});
 
 main()
   .then(() => {
@@ -39,3 +23,12 @@ main()
   .catch((err) => {
     console.log(err);
   });
+
+app.get("/", (req, res) => {
+  res.send("i am root");
+});
+
+app.get("/listings", async (req, res) => {
+  const allListing = await Listing.find({});
+  res.render("listings/index.ejs", { allListing });
+});

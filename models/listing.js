@@ -12,6 +12,7 @@ const listingSchema = new Schema(
     },
     image: {
       type: String,
+      filename: String,
       default:
         "https://images.unsplash.com/photo-1605559911160-a3d95d213904?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bW9ua2V5fGVufDB8fDB8fHww",
       set: (v) =>
