@@ -1,15 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WanderLust</title>
-  </head>
+<% layout('layouts/boilerplate.ejs') %>
   <body>
     <h3>Edit your Lisiting</h3>
     <form action="/listings/<%= listing.id %>?_method=PUT" method="post">
       <input
-        type="text"
+        type="text
         name="listing[title]"
         id="title"
         value="<%= listing.title %>"
@@ -50,4 +44,4 @@
       <button>Edit</button>
     </form>
   </body>
-</html>
+
