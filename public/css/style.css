@@ -12,3 +12,28 @@
 .nav-link {
   color: #222222 !important;
 }
+
+/* Footer */
+footer {
+  height: 6rem;
+  background-color: #ebebeb;
+  text-align: center;
+}
+
+.f-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.f-info-socials i {
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.f-info-links a {
+  margin: 0 10px;
+  text-decoration: none;
+}
