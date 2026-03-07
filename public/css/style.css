@@ -90,3 +90,20 @@ footer {
   border: none !important;
   color: white !important;
 }
+
+/* Edit  */
+.edit-btn {
+  background-color: #fe424d !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* Show page */
+.show-img {
+  height: 30vh;
+}
+
+.show-card {
+  padding-left: 0;
+  padding-right: 0;
+}
