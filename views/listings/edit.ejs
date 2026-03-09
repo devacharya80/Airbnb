@@ -25,14 +25,8 @@
 
         <div class="mt-3">
           <label for="description" class="form-label">Description</label>
-          <textarea
-            type="text"
-            name="listing[description]"
-            id="description"
-            class="form-control"
-            required
-          >
-          <%= listing.description %></textarea
+          <textarea name="listing[description]" class="form-control">
+<%= listing.description %></textarea
           >
           <div class="valid-feedback">Looks good!</div>
           <div class="invalid-feedback">Enter a valid Description</div>
