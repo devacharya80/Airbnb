@@ -114,5 +114,5 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message = "message not found" } = err;
-  res.status(statusCode).send(message);
+  res.status(statusCode).render("error", { message });
 });
