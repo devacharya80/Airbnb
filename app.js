@@ -35,6 +35,18 @@ main()
     console.log(err);
   });
 
+// ValidateSchema
+const validateListing = (req, res, next) => {
+  const { error } = listingSchema.validate(req.body);
+  if (error) {
+    const errMsg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(400, errMsg);
+  } else {
+    next();
+  }
+};
+
+// Root Route
 app.get("/", (req, res) => {
   res.send("i am root");
 });
@@ -66,11 +78,9 @@ app.get(
 // Create Route
 app.post(
   "/listings",
+  validateListing,
   wrapAsync(async (req, res) => {
     const result = listingSchema.validate(req.body);
-    if (result.error) {
-      throw new ExpressError(400, result.error);
-    }
     const listing = req.body.listing;
     await Listing.create(listing);
     res.redirect("/listings");
@@ -90,10 +100,8 @@ app.get(
 // Update Route
 app.put(
   "/listings/:id",
+  validateListing,
   wrapAsync(async (req, res) => {
-    if (!req.body.listing) {
-      throw new ExpressError(400, "Send Valid data for Listing");
-    }
     const { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing });
     res.redirect(`/listings/${id}`);
