@@ -30,10 +30,12 @@ const listingSchema = new Schema(
     country: {
       type: String,
     },
-    reviews: {
-      type: Schema.Types.ObjectId,
-      ref: "Reviews",
-    },
+    reviews: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Reviews",
+      },
+    ],
   },
   { timestamps: true },
 );
