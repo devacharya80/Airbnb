@@ -30,7 +30,10 @@
   </head>
   <body>
     <%- include("../includes/navbar.ejs") %>
-    <div class="container"><%- body %></div>
+    <div class="container">
+      <!-- flash.ejs -->
+      <%- include("../includes/flash.ejs") %> <%- body %>
+    </div>
     <%-include("../includes/footer.ejs") %>
     <!-- JS Bootstrap -->
     <script
