@@ -48,6 +48,7 @@ router.post(
     const result = listingSchema.validate(req.body);
     const listing = req.body.listing;
     await Listing.create(listing);
+    req.flash("success", "New Listing Created");
     res.redirect("/listings");
   }),
 );

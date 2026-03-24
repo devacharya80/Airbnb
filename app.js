@@ -6,6 +6,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
+const flash = require("connect-flash");
 
 const listings = require("./routes/listing.js");
 const reviews = require("./routes/review.js");
@@ -48,12 +49,18 @@ const sessionOptions = {
   },
 };
 
-// session middlewares
-app.use(session(sessionOptions));
-
 // Root Route
 app.get("/", (req, res) => {
   res.send("i am root");
+});
+
+// session middlewares and connect-flash middleware
+app.use(session(sessionOptions));
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  next();
 });
 
 // listing route
