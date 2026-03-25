@@ -3,6 +3,7 @@ const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync");
 const User = require("../models/user");
 const passport = require("passport");
+const { route } = require("./listing");
 
 // signup route
 router.get("/signup", (req, res) => {
@@ -41,5 +42,16 @@ router.post(
     res.redirect("/listings");
   },
 );
+
+// logout
+router.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    req.flash("success", "See You Again!");
+    return res.redirect("/listings");
+  });
+});
 
 module.exports = router;
