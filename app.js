@@ -7,6 +7,9 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const User = require("./models/user.js");
 
 const listings = require("./routes/listing.js");
 const reviews = require("./routes/review.js");
@@ -58,10 +61,32 @@ app.get("/", (req, res) => {
 app.use(session(sessionOptions));
 app.use(flash());
 
+// local Variables
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
+});
+
+// activates the passport
+app.use(passport.initialize());
+// adds session for passport
+app.use(passport.session());
+
+// Use passport local login strategy and use User model to authenticate username and password.
+passport.use(new LocalStrategy(User.authenticate()));
+// stores user id in session
+passport.serializeUser(User.serializeUser());
+// retrieves user from session id and attaches to request object
+passport.deserializeUser(User.deserializeUser());
+
+app.get("/register", async (req, res) => {
+  let fakeUser = new User({
+    email: "student@gmail.com",
+    username: "Devacharya",
+  });
+  const newUser = await User.register(fakeUser, "hello world");
+  res.send(newUser);
 });
 
 // listing route
