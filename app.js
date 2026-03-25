@@ -62,13 +62,6 @@ app.get("/", (req, res) => {
 app.use(session(sessionOptions));
 app.use(flash());
 
-// local Variables
-app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  next();
-});
-
 // activates the passport
 app.use(passport.initialize());
 // adds session for passport
@@ -80,6 +73,14 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 // retrieves user from session id and attaches to request object
 passport.deserializeUser(User.deserializeUser());
+
+// local Variables
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
+});
 
 // app.get("/register", async (req, res) => {
 //   let fakeUser = new User({
