@@ -21,7 +21,8 @@
       </div>
     </div>
   </div>
-  <div class="btns d-flex gap-3 mb-3 offset-3">
+  <% if (currUser && currUser._id.equals(listing.owner._id)) { %>
+    <div class="btns d-flex gap-3 mb-3 offset-3">
     <a href="/listings/<%= listing._id %>/edit">
       <button class="btn btn-dark edit-btn">Edit</button>
     </a>
@@ -30,6 +31,7 @@
       <button class="btn btn-dark">Delete</button>
     </form>
   </div>
+  <% } %>
 
   <hr />
 

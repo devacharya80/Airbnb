@@ -43,7 +43,7 @@ router.get(
       req.flash("error", "Listing Not Found");
       return res.redirect("/listings");
     }
-    console.log(listing);
+    // console.log(listing);
     res.render("listings/show.ejs", { listing });
   }),
 );
