@@ -1,3 +1,5 @@
+const Listing = require("./models/listing");
+
 module.exports.isLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
     req.session.redirectUrl = req.originalUrl;
@@ -12,4 +14,25 @@ module.exports.saveRedirectUrl = (req, res, next) => {
     res.locals.redirectUrl = req.session.redirectUrl;
   }
   next();
+};
+
+module.exports.isOwner = async (req, res, next) => {
+  const { id } = req.params;
+  const listing = await Listing.findById(id);
+  if (!listing.owner._id.equals(res.locals.currUser._id)) {
+    req.flash("error", "You don't have Access");
+    return res.redirect(`/listings/${id}`);
+  }
+  next();
+};
+
+// ValidateSchema listingSchema
+module.exports.validateListing = (req, res, next) => {
+  const { error } = listingSchema.validate(req.body);
+  if (error) {
+    const errMsg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(400, errMsg);
+  } else {
+    next();
+  }
 };
