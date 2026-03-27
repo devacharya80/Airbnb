@@ -56,6 +56,7 @@ router.post(
   wrapAsync(async (req, res) => {
     const result = listingSchema.validate(req.body);
     const listing = req.body.listing;
+    listing.owner = req.user._id;
     await Listing.create(listing);
     req.flash("success", "New Listing Created");
     res.redirect("/listings");
