@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV != "production") {
+  require("dotenv").config();
+}
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -10,6 +14,7 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const User = require("./models/user.js");
+const { MongoStore } = require("connect-mongo");
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
@@ -24,10 +29,10 @@ app.use(express.static(path.join(__dirname, "/public")));
 
 app.engine("ejs", ejsMate);
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const dburl = process.env.ATLASDB_URL;
 
 const main = async () => {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(dburl);
 };
 
 main()
@@ -41,9 +46,19 @@ main()
     console.log(err);
   });
 
+const store = MongoStore.create({
+  mongoUrl: dburl,
+  touchAfter: 24 * 3600,
+});
+
+store.on("error", () => {
+  console.log("error in mongo session", err);
+});
+
 // session options
 const sessionOptions = {
-  secret: "mysupersecretecode",
+  store,
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -54,9 +69,9 @@ const sessionOptions = {
 };
 
 // Root Route
-app.get("/", (req, res) => {
-  res.send("i am root");
-});
+// app.get("/", (req, res) => {
+//   res.send("i am root");
+// });
 
 // session middlewares and connect-flash middleware
 app.use(session(sessionOptions));
