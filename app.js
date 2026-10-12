@@ -1,125 +1,96 @@
-// if (process.env.NODE_ENV != "production") {
-//   require("dotenv").config();
-// }
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
-// const express = require("express");
-// const app = express();
-// const mongoose = require("mongoose");
-// const path = require("path");
-// const methodOverride = require("method-override");
-// const ejsMate = require("ejs-mate");
-// const ExpressError = require("./utils/ExpressError.js");
-// const session = require("express-session");
-// const flash = require("connect-flash");
-// const passport = require("passport");
-// const LocalStrategy = require("passport-local").Strategy;
-// const User = require("./models/user.js");
-// const { MongoStore } = require("connect-mongo");
+const express = require("express");
+const app = express();
+const mongoose = require("mongoose");
+const path = require("path");
+const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
+const ExpressError = require("./utils/ExpressError.js");
+const session = require("express-session");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const User = require("./models/user.js");
 
-// const listingRouter = require("./routes/listing.js");
-// const reviewRouter = require("./routes/review.js");
-// const userRouter = require("./routes/user.js");
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
 
-// app.set("view engine", "ejs");
-// app.set("views", path.join(__dirname, "views"));
+const dburl = process.env.ATLASDB_URL;
 
-// app.use(express.urlencoded({ extended: true }));
-// app.use(methodOverride("_method"));
-// app.use(express.static(path.join(__dirname, "/public")));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
-// app.engine("ejs", ejsMate);
+app.engine("ejs", ejsMate);
 
-// const dburl = process.env.ATLASDB_URL;
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")));
 
-// const main = async () => {
-//   await mongoose.connect(dburl);
-// };
+app.use(
+  session({
+    secret: process.env.SECRET || "local-development-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    },
+  }),
+);
 
-// main()
-//   .then(() => {
-//     console.log("connected to DB");
-//     app.listen(8080, () => {
-//       console.log("listening to 8080");
-//     });
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
+app.use(flash());
 
-// const store = MongoStore.create({
-//   mongoUrl: dburl,
-//   touchAfter: 24 * 3600,
-// });
+app.use(passport.initialize());
+app.use(passport.session());
 
-// store.on("error", () => {
-//   console.log("error in mongo session", err);
-// });
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
-// // session options
-// const sessionOptions = {
-//   store,
-//   secret: process.env.SECRET,
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: {
-//     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-//     maxAge: 7 * 24 * 60 * 60 * 1000,
-//     httpOnly: true,
-//   },
-// };
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
+});
 
-// // Root Route
-// // app.get("/", (req, res) => {
-// //   res.send("i am root");
-// // });
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
 
-// // session middlewares and connect-flash middleware
-// app.use(session(sessionOptions));
-// app.use(flash());
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
 
-// // activates the passport
-// app.use(passport.initialize());
-// // adds session for passport
-// app.use(passport.session());
+app.use((req, res, next) => {
+  next(new ExpressError(404, "Page Not Found"));
+});
 
-// // Use passport local login strategy and use User model to authenticate username and password.
-// passport.use(new LocalStrategy(User.authenticate()));
-// // stores user id in session
-// passport.serializeUser(User.serializeUser());
-// // retrieves user from session id and attaches to request object
-// passport.deserializeUser(User.deserializeUser());
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message = "Internal Server Error" } = err;
+  res.status(statusCode).render("error", { message });
+});
 
-// // local Variables
-// app.use((req, res, next) => {
-//   res.locals.success = req.flash("success");
-//   res.locals.error = req.flash("error");
-//   res.locals.currUser = req.user;
-//   next();
-// });
+const startServer = async () => {
+  if (!dburl) {
+    throw new Error("ATLASDB_URL is missing from the .env file");
+  }
 
-// // app.get("/register", async (req, res) => {
-// //   let fakeUser = new User({
-// //     email: "student@gmail.com",
-// //     username: "Devacharya",
-// //   });
-// //   const newUser = await User.register(fakeUser, "hello world");
-// //   res.send(newUser);
-// // });
+  await mongoose.connect(dburl);
+  console.log("Connected to MongoDB Atlas");
 
-// // listing route
-// app.use("/listings", listingRouter);
+  const PORT = process.env.PORT || 3000;
+  
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
+};
 
-// // Reviews route
-// app.use("/listings/:id/reviews", reviewRouter);
-
-// // User route
-// app.use("/", userRouter);
-
-// app.use((req, res, next) => {
-//   next(new ExpressError(404, "Page Not Found"));
-// });
-
-// app.use((err, req, res, next) => {
-//   const { statusCode = 500, message = "message not found" } = err;
-//   res.status(statusCode).render("error", { message });
-// });
+startServer().catch((err) => {
+  console.error("Failed to start application:", err.message);
+  process.exit(1);
+});
